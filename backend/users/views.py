@@ -1,9 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
-from .serializers import UserSerializer,HouseSerializer,DeviceSerializer,RoomSerializer
-from .models import User,Room,House,Device
+from .serializers import UserSerializer,HouseSerializer,DeviceSerializer,RoomSerializer,DeviceConfigurationSerializer
+from .models import User,Room,House,Device,DeviceConfiguration
 from rest_framework import viewsets
+from rest_framework.decorators import action
+
 
 import jwt
 import datetime
@@ -78,11 +80,33 @@ class HouseViewSet(viewsets.ModelViewSet):
     queryset = House.objects.all()
     serializer_class = HouseSerializer
 
+    
+    @action(detail=False, methods=['get'])
+    def count(self, request):
+        count = self.get_queryset().count()
+        return Response({'count': count})
+
 class RoomViewSet(viewsets.ModelViewSet):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
 
+    @action(detail=False, methods=['get'])
+    def count(self, request):
+        count = self.get_queryset().count()
+        return Response({'count': count})
+
 class DeviceViewSet(viewsets.ModelViewSet):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
+
+    @action(detail=False, methods=['get'])
+    def count(self, request):
+        count = self.get_queryset().count()
+        return Response({'count': count})
+    
+
+
+class DeviceConfigurationViewSet(viewsets.ModelViewSet):
+    queryset = DeviceConfiguration.objects.all()
+    serializer_class = DeviceConfigurationSerializer    
 
