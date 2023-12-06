@@ -10,6 +10,21 @@ class User(AbstractUser):
 
     USERNAME_FIELD='email'
     REQUIRED_FIELDS=[]
+
+
+class House(models.Model):
+    name=models.CharField(max_length=255)
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+
+class Room(models.Model):
+    name=models.CharField(max_length=255)
+    house=models.ForeignKey(House,on_delete=models.CASCADE)
+
+
+class Device(models.Model):
+    name = models.CharField(max_length=255)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)    
+
     
 
 

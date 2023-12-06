@@ -1,66 +1,88 @@
 from rest_framework.views import APIView
-from .serializers import UserSerializer
 from rest_framework.response import Response
-from .models import User
 from rest_framework.exceptions import AuthenticationFailed
-import jwt,datetime
+from .serializers import UserSerializer,HouseSerializer,DeviceSerializer,RoomSerializer
+from .models import User,Room,House,Device
+from rest_framework import viewsets
 
-#apis
+import jwt
+import datetime
 
-#register
+# Register
 class RegisterView(APIView):
-    def post(self,request):
-        serializor=UserSerializer(data=request.data)
-        serializor.is_valid(raise_exception=True)
-        serializor.save()
-        return Response(serializor.data)
-    
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
-#Login
+# Login
 class LoginView(APIView):
-    def post(self,request):
-        email=request.data['email']
-        password=request.data['password']
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
 
-        user= User.objects.filter(email=email).first()
+        user = User.objects.filter(email=email).first()
 
         if user is None:
             raise AuthenticationFailed('User Not Found!')
-        
+
         if not user.check_password(password):
             raise AuthenticationFailed('Incorrect password!')
-        
 
-        payload={
-            'id':user.id,
-            'exp':datetime.datetime.utcnow()+datetime.timedelta(minutes=60),
-            'iat':datetime.datetime.utcnow()
-
+        payload = {
+            'id': user.id,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+            'iat': datetime.datetime.utcnow()
         }
 
-        token=jwt.encode(payload,'secret',algorithm='HS256')
-        decode=jwt.decode(token, "secret", algorithms=["HS256"])
+        token = jwt.encode(payload, 'secret', algorithm='HS256')
 
-        response=Response()
-        
-        return Response({
-            'jwt':token
-        })
-    
+        response = Response()
+        response.set_cookie(key='jwt', value=token, httponly=True)
 
-
-
+        response.data = {'jwt': token}  # Set the data attribute correctly
+        return response
 class UserView(APIView):
-    def get(self,request):
-        token=request.COOKIES.get('jwt')
+    def get(self, request):
+        token = request.COOKIES.get('jwt')
 
-        return Response(token)
+        if not token:
+            raise AuthenticationFailed('Unauthenticated')
 
-        
+        try:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated')
+        except jwt.InvalidTokenError:
+            raise AuthenticationFailed('Unauthenticated')
 
+        user = User.objects.filter(id=payload['id']).first()
 
+        if user is None:
+            raise AuthenticationFailed('User not found')
 
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
 
-
+# LogoutView
+class LogoutView(APIView):
+    def post(self, request):
+        response = Response()
+        response.delete_cookie('jwt')
+        response.data = {'message': 'success'}
+        return response
     
-    
+
+class HouseViewSet(viewsets.ModelViewSet):
+    queryset = House.objects.all()
+    serializer_class = HouseSerializer
+
+class RoomViewSet(viewsets.ModelViewSet):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
+
+class DeviceViewSet(viewsets.ModelViewSet):
+    queryset = Device.objects.all()
+    serializer_class = DeviceSerializer
+

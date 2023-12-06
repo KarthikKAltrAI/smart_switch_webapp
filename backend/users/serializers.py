@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User,House,Room,Device
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,4 +19,18 @@ class UserSerializer(serializers.ModelSerializer):
         return instance 
 
 
+class HouseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = House
+        fields = '__all__'
+
+class RoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = '__all__'
+
+class DeviceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Device
+        fields = '__all__'
 
