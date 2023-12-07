@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.utils import timezone
+
 
 
 
@@ -31,14 +33,20 @@ class Device(models.Model):
     
 
 class DeviceConfiguration(models.Model):
-    device = models.OneToOneField(Device, on_delete=models.CASCADE)
-    mac_address = models.CharField(max_length=17)  # Assuming MAC address is in the format 'xx:xx:xx:xx:xx:xx'
+    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    mac_address = models.CharField(max_length=17)
     device_password = models.CharField(max_length=255)
     network_ssid = models.CharField(max_length=255)
-    network_password = models.CharField(max_length=255)    
-   
-
+    network_password = models.CharField(max_length=255)
     
+    # Additional fields
+    device_name = models.CharField(max_length=255) 
+    ip = models.GenericIPAddressField(null=True, blank=True)
+    time = models.DateTimeField(null=True, blank=True, auto_now_add=True)
+    status = models.CharField(max_length=255, null=True, blank=True)
+    voltage = models.FloatField(null=True, blank=True)
+    current = models.FloatField(null=True, blank=True)
+    power = models.FloatField(null=True, blank=True)
 
-
- 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)

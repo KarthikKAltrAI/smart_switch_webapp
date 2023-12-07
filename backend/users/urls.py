@@ -26,8 +26,8 @@ urlpatterns = [
     #Device-Config
 
     path('device-configurations/', DeviceConfigurationViewSet.as_view({'get': 'list', 'post': 'create'}), name='device-list'),
-    path('device-configuartions/<int:pk>/', DeviceConfigurationViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='device-detail'),
-
+    path('device-configurations/<int:pk>/', DeviceConfigurationViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='device-detail'),
+    path('device-configurations/get_by_month/', DeviceConfigurationViewSet.as_view({'get': 'get_by_month'}), name='device-configurations-by-month'),
 
 
 

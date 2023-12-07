@@ -5,6 +5,9 @@ from .serializers import UserSerializer,HouseSerializer,DeviceSerializer,RoomSer
 from .models import User,Room,House,Device,DeviceConfiguration
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from django.utils import timezone
+from django.db.models.functions import TruncMonth
+
 
 
 import jwt
@@ -105,8 +108,37 @@ class DeviceViewSet(viewsets.ModelViewSet):
         return Response({'count': count})
     
 
-
 class DeviceConfigurationViewSet(viewsets.ModelViewSet):
     queryset = DeviceConfiguration.objects.all()
-    serializer_class = DeviceConfigurationSerializer    
+    serializer_class = DeviceConfigurationSerializer
 
+    def create(self, request, *args, **kwargs):
+        # Check if data is a list
+        if isinstance(request.data, list):
+            serializer = self.get_serializer(data=request.data, many=True)
+        else:
+            serializer = self.get_serializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
+    
+    def list(self, request, *args, **kwargs):
+        # Get all DeviceConfigurations
+        queryset = DeviceConfiguration.objects.all()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        # Get DeviceConfiguration by ID
+        queryset = DeviceConfiguration.objects.filter(pk=pk)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def get_by_month(self, request, *args, **kwargs):
+        # Get DeviceConfigurations by month
+        month = request.query_params.get('month', timezone.now().month)
+        queryset = DeviceConfiguration.objects.filter(time__month=month)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
