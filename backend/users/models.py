@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser,BaseUserManager, PermissionsMixin,AbstractBaseUser,Group, Permission
+from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.utils import timezone
@@ -20,19 +21,22 @@ class User(AbstractUser):
 
 class House(models.Model):
     name=models.CharField(max_length=255)
-    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='houses')  # This is the ForeignKey field
 
 class Room(models.Model):
     name=models.CharField(max_length=255)
     house=models.ForeignKey(House,on_delete=models.CASCADE)
 
 
+
 class Device(models.Model):
     name = models.CharField(max_length=255)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE) 
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+ 
     
 
 class DeviceConfiguration(models.Model):
+
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     mac_address = models.CharField(max_length=17)
     device_password = models.CharField(max_length=255)
@@ -50,3 +54,4 @@ class DeviceConfiguration(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+

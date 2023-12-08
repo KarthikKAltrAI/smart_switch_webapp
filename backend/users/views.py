@@ -70,6 +70,8 @@ class UserView(APIView):
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
+         
+
 # LogoutView
 class LogoutView(APIView):
     def post(self, request):
@@ -142,3 +144,15 @@ class DeviceConfigurationViewSet(viewsets.ModelViewSet):
         queryset = DeviceConfiguration.objects.filter(time__month=month)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    @action(detail=False, methods=['get'])
+    def total_users(self, request):
+        count = self.get_queryset().count()
+        return Response({'total_users': count})
+
+        
