@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from .serializers import UserSerializer,HouseSerializer,DeviceSerializer,RoomSerializer,DeviceConfigurationSerializer
 from .models import User,Room,House,Device,DeviceConfiguration
-from rest_framework import viewsets
+from rest_framework import viewsets,permissions
 from rest_framework.decorators import action
 from django.utils import timezone
 from django.db.models.functions import TruncMonth
@@ -80,10 +80,16 @@ class LogoutView(APIView):
         response.data = {'message': 'success'}
         return response
     
+class UserFieldMixin:
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
+        
 class HouseViewSet(viewsets.ModelViewSet):
     queryset = House.objects.all()
     serializer_class = HouseSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 
     
     @action(detail=False, methods=['get'])
@@ -94,6 +100,8 @@ class HouseViewSet(viewsets.ModelViewSet):
 class RoomViewSet(viewsets.ModelViewSet):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 
     @action(detail=False, methods=['get'])
     def count(self, request):
@@ -103,6 +111,8 @@ class RoomViewSet(viewsets.ModelViewSet):
 class DeviceViewSet(viewsets.ModelViewSet):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 
     @action(detail=False, methods=['get'])
     def count(self, request):
@@ -113,6 +123,8 @@ class DeviceViewSet(viewsets.ModelViewSet):
 class DeviceConfigurationViewSet(viewsets.ModelViewSet):
     queryset = DeviceConfiguration.objects.all()
     serializer_class = DeviceConfigurationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 
     def create(self, request, *args, **kwargs):
         # Check if data is a list
@@ -144,15 +156,100 @@ class DeviceConfigurationViewSet(viewsets.ModelViewSet):
         queryset = DeviceConfiguration.objects.filter(time__month=month)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
+
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+    @action(detail=True, methods=['get'])
+    def user_details(self, request, pk=None):
+        user = self.get_object()
+
+        user_data = UserSerializer(user).data
+
+        # Get all houses, rooms, devices, and device configurations related to the user
+        houses = HouseSerializer(user.houses.all(), many=True).data  # Use the correct related name here
+        rooms = RoomSerializer(Room.objects.filter(user=user), many=True).data
+        devices = DeviceSerializer(Device.objects.filter(user=user), many=True).data
+        device_configs = DeviceConfigurationSerializer(DeviceConfiguration.objects.filter(user=user), many=True).data
+
+        response_data = {
+            'user': user_data,
+            'houses': houses,
+            'rooms': rooms,
+            'devices': devices,
+            'device_configurations': device_configs,
+        }
+
+        return Response(response_data)
+    
+
+
+
+
+class UserDetailsViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
 
     @action(detail=False, methods=['get'])
-    def total_users(self, request):
-        count = self.get_queryset().count()
-        return Response({'total_users': count})
+    def user_details(self, request):
+        user = request.user  # Access the authenticated user directly
 
-        
+        user_data = UserSerializer(user).data
+
+        # Get all houses, rooms, devices, and device configurations related to the user
+        houses = House.objects.filter(user=user)
+        rooms = Room.objects.filter(user=user)
+        devices = Device.objects.filter(user=user)
+        device_configs = DeviceConfiguration.objects.filter(user=user)
+
+        # Count the number of each type
+        house_count = houses.count()
+        room_count = rooms.count()
+        device_count = devices.count()
+        device_config_count = device_configs.count()
+
+        response_data = {
+            'user': user_data,
+            'houses': house_count,
+            'rooms': room_count,
+            'devices': device_count,
+            'device_configurations': device_config_count,
+        }
+
+        return Response(response_data)
+    
+class UserDetailsViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def user_details(self, request):
+        user = request.user  # Access the authenticated user directly
+
+        user_data = UserSerializer(user).data
+
+        # Get all houses, rooms, devices, and device configurations related to the user
+        houses = House.objects.filter(user=user)
+        rooms = Room.objects.filter(user=user)
+        devices = Device.objects.filter(user=user)
+        device_configs = DeviceConfiguration.objects.filter(user=user)
+
+        # Count the number of each type
+        house_count = houses.count()
+        room_count = rooms.count()
+        device_count = devices.count()
+        device_config_count = device_configs.count()
+
+        response_data = {
+            'user': user_data,
+            'houses': house_count,
+            'rooms': room_count,
+            'devices': device_count,
+            'device_configurations': device_config_count,
+        }
+
+        return Response(response_data)

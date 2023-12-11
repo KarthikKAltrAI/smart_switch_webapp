@@ -10,32 +10,44 @@ from django.utils import timezone
 
 # Create your models here.
 class User(AbstractUser):
-    name=models.CharField(max_length=255)
-    email=models.CharField(max_length=255,unique=True)
-    password=models.CharField(max_length=255)
-    username=None
+    USER_ROLE = 'user'
+  
+    name = models.CharField(max_length=255)
+    email = models.CharField(max_length=255, unique=True)
+    password = models.CharField(max_length=255)
+    username = None
 
-    USERNAME_FIELD='email'
-    REQUIRED_FIELDS=[]
+    role = models.CharField(max_length=255, default=USER_ROLE)
+    join_date = models.DateField(default=timezone.now)
+    join_time = models.TimeField(default=timezone.now)
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
 
 class House(models.Model):
     name=models.CharField(max_length=255)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='houses')  # This is the ForeignKey field
 
 class Room(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name=models.CharField(max_length=255)
     house=models.ForeignKey(House,on_delete=models.CASCADE)
 
 
 
+
 class Device(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
     name = models.CharField(max_length=255)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
+
  
     
 
 class DeviceConfiguration(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     mac_address = models.CharField(max_length=17)
