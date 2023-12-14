@@ -1,5 +1,5 @@
 from django.urls import path,include
-from .views import RegisterView,LoginView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet
+from .views import RegisterView,LoginView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView
 from rest_framework.routers import DefaultRouter
 
 
@@ -39,5 +39,10 @@ urlpatterns = [
     path('users/user-details/<int:pk>/', UserDetailsViewSet.as_view({'get': 'user_details'}), name='user-details'),
 
 
-    
+    #getting rooms of particular house
+    path('houses/<int:house_id>/rooms/', HouseRoomsView.as_view(), name='house-rooms'),
+
+    #getting devices of particular room
+     path('rooms/<int:room_id>/devices/', RoomDevicesView.as_view(), name='room-devices'),
+
 ]

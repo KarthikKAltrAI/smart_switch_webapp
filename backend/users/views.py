@@ -7,6 +7,8 @@ from rest_framework import viewsets,permissions
 from rest_framework.decorators import action
 from django.utils import timezone
 from django.db.models.functions import TruncMonth
+from rest_framework import status
+
 
 
 
@@ -100,7 +102,6 @@ class HouseViewSet(viewsets.ModelViewSet):
 class RoomViewSet(viewsets.ModelViewSet):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 
     @action(detail=False, methods=['get'])
@@ -111,7 +112,6 @@ class RoomViewSet(viewsets.ModelViewSet):
 class DeviceViewSet(viewsets.ModelViewSet):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 
     @action(detail=False, methods=['get'])
@@ -163,7 +163,6 @@ class DeviceConfigurationViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 
     @action(detail=True, methods=['get'])
@@ -193,7 +192,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class UserDetailsViewSet(viewsets.ViewSet):
-    permission_classes = [permissions.IsAuthenticated]
 
     @action(detail=False, methods=['get'])
     def user_details(self, request):
@@ -224,7 +222,6 @@ class UserDetailsViewSet(viewsets.ViewSet):
         return Response(response_data)
     
 class UserDetailsViewSet(viewsets.ViewSet):
-    permission_classes = [permissions.IsAuthenticated]
 
     @action(detail=False, methods=['get'])
     def user_details(self, request):
@@ -253,3 +250,28 @@ class UserDetailsViewSet(viewsets.ViewSet):
         }
 
         return Response(response_data)
+    
+
+
+
+class HouseRoomsView(APIView):
+
+    def get(self, request, house_id):
+        try:
+            rooms = Room.objects.filter(house_id=house_id)
+            serializer = RoomSerializer(rooms, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+        
+
+#getting devices of particular rooms
+class RoomDevicesView(APIView):
+
+    def get(self, request, room_id):
+        try:
+            devices = Device.objects.filter(room_id=room_id)
+            serializer = DeviceSerializer(devices, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
