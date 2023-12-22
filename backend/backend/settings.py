@@ -18,7 +18,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-8=e%9rcqrzgd&*v%m^ik#chn_g1xwh5+54yhnijjz%(ne^mh8y'
 
@@ -41,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'users',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -77,14 +77,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'smart_switch',
-        'USER':'root',
-        'PASSWORD':'karthi638',
-
+        'ENGINE': 'django.db.backends.mysql',  # Use 'django.db.backends.postgresql' for PostgreSQL, 'django.db.backends.sqlite3' for SQLite, etc.
+        'NAME': 'new',
+        'USER': 'root',
+        'PASSWORD': 'karthi638',
+        'HOST': 'localhost',  # Replace with the actual host for your database server
+        'PORT': '3306',
+           # Replace with the actual port for your database server
+        
     }
 }
 

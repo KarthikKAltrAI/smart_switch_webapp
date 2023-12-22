@@ -1,13 +1,22 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
-from .serializers import UserSerializer,HouseSerializer,DeviceSerializer,RoomSerializer,DeviceConfigurationSerializer
-from .models import User,Room,House,Device,DeviceConfiguration
+from .serializers import UserSerializer,HouseSerializer,DeviceSerializer,RoomSerializer,DeviceConfigurationSerializer,DeviceDataSerializer
+from .models import User,Room,House,Device,DeviceConfiguration,DeviceData
 from rest_framework import viewsets,permissions
 from rest_framework.decorators import action
 from django.utils import timezone
 from django.db.models.functions import TruncMonth
 from rest_framework import status
+from libnmap.process import NmapProcess
+from libnmap.parser import NmapParser
+from time import sleep
+import socket
+from rest_framework.decorators import api_view
+from django.http import JsonResponse
+from scapy.all import ARP, Ether, srp
+
+
 
 
 
@@ -90,7 +99,6 @@ class UserFieldMixin:
 class HouseViewSet(viewsets.ModelViewSet):
     queryset = House.objects.all()
     serializer_class = HouseSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 
     
@@ -98,6 +106,12 @@ class HouseViewSet(viewsets.ModelViewSet):
     def count(self, request):
         count = self.get_queryset().count()
         return Response({'count': count})
+    
+    @action(detail=False, methods=['get'])
+    def user_houses(self, request, id):
+        user_houses = self.get_queryset().filter(user=id)
+        serializer = self.get_serializer(user_houses, many=True)
+        return Response(serializer.data)
 
 class RoomViewSet(viewsets.ModelViewSet):
     queryset = Room.objects.all()
@@ -123,7 +137,6 @@ class DeviceViewSet(viewsets.ModelViewSet):
 class DeviceConfigurationViewSet(viewsets.ModelViewSet):
     queryset = DeviceConfiguration.objects.all()
     serializer_class = DeviceConfigurationSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 
     def create(self, request, *args, **kwargs):
@@ -275,3 +288,61 @@ class RoomDevicesView(APIView):
             return Response(serializer.data)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
+        
+# getting ip
+class Ipadd(APIView):
+    @api_view(['GET'])
+    def get_ip_by_mac(request, mac_address):
+        try:
+            ip = socket.gethostbyname(socket.gethostname())  # local ip
+        except:
+            ip = '127.0.0.1'
+
+        nm = NmapProcess(f'{ip}/24', options="-sP")
+        nm.run_background()
+
+        while nm.is_running():
+            sleep(2)
+
+        nmap_report = NmapParser.parse(nm.stdout)
+        
+        print("Nmap Output:", nm.stdout)  # Debugging statement
+
+        res = next(
+            filter(lambda n: n.mac == mac_address.strip().upper(),
+                   filter(lambda host: host.is_up(), nmap_report.hosts)),
+            None
+        )
+
+        if res is None:
+            return Response({"error": "Host is down or Mac address does not exist"}, status=404)
+        else:
+            return Response({"mac_address": mac_address, "ip_address": res.address})
+
+
+
+#ip
+class DeviceDataView(APIView):
+    def post(self, request):
+        data = []
+        for ip, values in request.data.items():
+            data.append({
+                'ip_address': ip,
+                'current': values.get('CURRENT'),
+                'power': values.get('POWER'),
+                'voltage': values.get('VOLTAGE')
+            })
+
+        serializer = DeviceDataSerializer(data=data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, ip_address):
+        try:
+            device_data = DeviceData.objects.get(ip_address=ip_address)
+            serializer = DeviceDataSerializer(device_data)
+            return Response(serializer.data)
+        except DeviceData.DoesNotExist:
+            return Response({'error': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)

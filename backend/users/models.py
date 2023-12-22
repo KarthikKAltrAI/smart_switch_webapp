@@ -40,7 +40,10 @@ class Device(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     name = models.CharField(max_length=255)
+    
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    ip = models.GenericIPAddressField(null=True, blank=True)
+
 
  
     
@@ -50,7 +53,6 @@ class DeviceConfiguration(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    mac_address = models.CharField(max_length=17)
     device_password = models.CharField(max_length=255)
     network_ssid = models.CharField(max_length=255)
     network_password = models.CharField(max_length=255)
@@ -67,3 +69,21 @@ class DeviceConfiguration(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
+
+
+class MacIpMapping(models.Model):
+    mac_address = models.CharField(max_length=17, unique=True)
+    ip_address = models.GenericIPAddressField()
+
+    def __str__(self):
+        return f"{self.mac_address} - {self.ip_address}"
+    
+
+class DeviceData(models.Model):
+    ip_address = models.GenericIPAddressField(unique=True)
+    current = models.FloatField()
+    power = models.CharField(max_length=50)
+    voltage = models.FloatField()
+
+    def __str__(self):
+        return self.ip_address

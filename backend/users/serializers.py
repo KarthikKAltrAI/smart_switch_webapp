@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,House,Room,Device,DeviceConfiguration
+from .models import User,House,Room,Device,DeviceConfiguration,MacIpMapping,DeviceData
 
 
 
@@ -56,3 +56,14 @@ class DeviceConfigurationSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeviceConfiguration
         fields = '__all__'
+
+
+class MacIpMappingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MacIpMapping
+        fields = '__all__'
+
+class DeviceDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeviceData
+        fields = ['ip_address', 'current', 'power', 'voltage']        
