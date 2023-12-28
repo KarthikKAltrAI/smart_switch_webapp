@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'channels',
 
 ]
+ASGI_APPLICATION = 'backend.routing.application'
+
 
 
 MIDDLEWARE = [
@@ -54,8 +56,19 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     "django.middleware.common.CommonMiddleware",
+        'django.middleware.security.SecurityMiddleware',
+
 ]
 
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
@@ -75,6 +88,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
+ASGI_APPLICATION = 'backend.asgi.application'
+
 
 
 # Database

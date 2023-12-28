@@ -1,6 +1,7 @@
 from django.urls import path,include
-from .views import DeviceConfigurationByDateView, RegisterView,LoginView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,Ipadd,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView
+from .views import DeviceConfigurationByDateView, RegisterView,LoginView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,Ipadd,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP
 from rest_framework.routers import DefaultRouter
+from .consumers import DeviceDataConsumer
 
 
 urlpatterns = [
@@ -56,7 +57,7 @@ urlpatterns = [
 
      #posting as list with-ip
     path('device-data/', DeviceDataView.as_view(), name='device-data-list'),
-    path('device-data/ip/<str:ip_address>/', IpviewSet.as_view(), name='device-data-detail'),
+    path('device-data/ip/latest/<str:ip_address>/', IpviewSet.as_view(), name='device-data-detail'),
 
     #getting details of device of particular user
     path('device-data/<int:user_id>/', UserDeviceDataView.as_view(), name='user-device-data'),
@@ -66,6 +67,13 @@ urlpatterns = [
 
     #GETTING_DEVICEDATA_BY_DATE
     path('device-data/date/', DeviceConfigurationByDateView.as_view({'get': 'get_by_date'}), name='device-configurations-by-date'),
+
+    #history of Ip
+    path('device-data/<str:ip_address>/', HistoryIP.as_view(), name='device-data-detail'),
+
+
+    
+    
 
 
 

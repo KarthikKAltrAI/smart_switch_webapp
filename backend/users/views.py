@@ -374,13 +374,21 @@ class UserDevicesView(APIView):
     
 
 
-#getting based on ip
+#getting based on latest ip
 class IpviewSet(APIView):
-     def get(self, request, ip_address):
+    def get(self, request, ip_address):
+        try:
+            device_data = DeviceData.objects.filter(ip_address=ip_address).latest('id')
+            serializer = DeviceDataSerializer(device_data)
+            return Response({ip_address: serializer.data})
+        except DeviceData.DoesNotExist:
+            return Response({'error': 'Device with given IP not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class HistoryIP(APIView):
+    def get(self, request, ip_address):
             device_data = DeviceData.objects.filter(ip_address=ip_address)
             serializer = DeviceDataSerializer(device_data, many=True)
             return Response(serializer.data)
-
 
 #getting based on day
 class MonthView(viewsets.ModelViewSet):
