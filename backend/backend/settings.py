@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-8=e%9rcqrzgd&*v%m^ik#chn_g1xwh5+54yhnijjz%(ne^mh8y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     "corsheaders",
+    'corsheaders',
     'rest_framework',
     'users',
 ]
@@ -135,5 +135,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL='users.User'
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 CORS_ORIGIN_ALLOW_ALL=True
 CORS_ALLOW_CREDENTIALS = True
+

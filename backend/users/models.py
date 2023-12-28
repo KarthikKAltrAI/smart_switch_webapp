@@ -43,6 +43,9 @@ class Device(models.Model):
     
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     ip = models.GenericIPAddressField(null=True, blank=True)
+    mac_address = models.CharField(max_length=17, unique=True,null=True,blank=True)
+
+
 
 
  
@@ -80,10 +83,16 @@ class MacIpMapping(models.Model):
     
 
 class DeviceData(models.Model):
-    ip_address = models.GenericIPAddressField(unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,blank=True,null=True)
+
+    ip_address = models.GenericIPAddressField()
     current = models.FloatField()
     power = models.CharField(max_length=50)
     voltage = models.FloatField()
+    status=models.CharField(max_length=50)
+    time = models.DateTimeField(null=True, blank=True, auto_now_add=True)
+
 
     def __str__(self):
         return self.ip_address
+    

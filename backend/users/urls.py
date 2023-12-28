@@ -1,5 +1,5 @@
 from django.urls import path,include
-from .views import RegisterView,LoginView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,Ipadd,DeviceDataView
+from .views import DeviceConfigurationByDateView, RegisterView,LoginView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,Ipadd,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView
 from rest_framework.routers import DefaultRouter
 
 
@@ -27,7 +27,7 @@ urlpatterns = [
 
     path('device-configurations/', DeviceConfigurationViewSet.as_view({'get': 'list', 'post': 'create'}), name='device-list'),
     path('device-configurations/<int:pk>/', DeviceConfigurationViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='device-detail'),
-    path('device-configurations/get_by_month/', DeviceConfigurationViewSet.as_view({'get': 'get_by_month'}), name='device-configurations-by-month'),
+    path('device-configurations/get_by_month/', MonthView.as_view({'get': 'get_by_month'}), name='device-configurations-by-month'),
 
 
     #getting,counting_users
@@ -56,6 +56,22 @@ urlpatterns = [
 
      #posting as list with-ip
     path('device-data/', DeviceDataView.as_view(), name='device-data-list'),
-    path('device-data/<str:ip_address>/', DeviceDataView.as_view(), name='device-data-detail'),
+    path('device-data/ip/<str:ip_address>/', IpviewSet.as_view(), name='device-data-detail'),
+
+    #getting details of device of particular user
+    path('device-data/<int:user_id>/', UserDeviceDataView.as_view(), name='user-device-data'),
+
+    #getting device name of particular user
+    path('users/devices/<int:user_id>', UserDevicesView.as_view(), name='user-devices'),
+
+    #GETTING_DEVICEDATA_BY_DATE
+    path('device-data/date/', DeviceConfigurationByDateView.as_view({'get': 'get_by_date'}), name='device-configurations-by-date'),
+
+
+
+
+
+
+ 
 
 ]

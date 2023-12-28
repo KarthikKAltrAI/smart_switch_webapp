@@ -66,4 +66,4 @@ class MacIpMappingSerializer(serializers.ModelSerializer):
 class DeviceDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeviceData
-        fields = ['ip_address', 'current', 'power', 'voltage']        
+        fields ='__all__'

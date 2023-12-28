@@ -15,6 +15,10 @@ import socket
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from scapy.all import ARP, Ether, srp
+from django.shortcuts import get_object_or_404
+from datetime import datetime
+
+
 
 
 
@@ -163,13 +167,7 @@ class DeviceConfigurationViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    def get_by_month(self, request, *args, **kwargs):
-        # Get DeviceConfigurations by month
-        month = request.query_params.get('month', timezone.now().month)
-        queryset = DeviceConfiguration.objects.filter(time__month=month)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-    
+  
 
 
 
@@ -330,7 +328,10 @@ class DeviceDataView(APIView):
                 'ip_address': ip,
                 'current': values.get('CURRENT'),
                 'power': values.get('POWER'),
-                'voltage': values.get('VOLTAGE')
+                'voltage': values.get('VOLTAGE'),
+                'user': values.get('user'),
+                'status':values.get('status')
+               
             })
 
         serializer = DeviceDataSerializer(data=data, many=True)
@@ -339,10 +340,77 @@ class DeviceDataView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, ip_address):
+   
+    def get(self, request, user_id):
         try:
-            device_data = DeviceData.objects.get(ip_address=ip_address)
-            serializer = DeviceDataSerializer(device_data)
+            # Fetching DeviceData objects related to a specific user
+            user = get_object_or_404(User, pk=user_id)
+            device_data = DeviceData.objects.filter(user=user)
+            # Serialize the queryset using many=True since it might return multiple objects
+            serializer = DeviceDataSerializer(device_data, many=True)
             return Response(serializer.data)
+        except User.DoesNotExist:
+            return Response({'error': 'User Not Found'}, status=status.HTTP_404_NOT_FOUND)
         except DeviceData.DoesNotExist:
-            return Response({'error': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Device Data Not Found'}, status=status.HTTP_404_NOT_FOUND)    
+    
+
+
+#getting device-congig of user
+class UserDeviceDataView(APIView):
+    def get(self, request, user_id):
+        device_data = DeviceData.objects.filter(user=user_id)
+        serializer = DeviceDataSerializer(device_data, many=True)
+        return Response(serializer.data)
+
+
+
+#getting devices of particular user
+class UserDevicesView(APIView):
+    def get(self, request, user_id):
+        devices = Device.objects.filter(user_id=user_id)
+        serializer = DeviceSerializer(devices, many=True)
+        return Response(serializer.data)                              
+    
+
+
+#getting based on ip
+class IpviewSet(APIView):
+     def get(self, request, ip_address):
+            device_data = DeviceData.objects.filter(ip_address=ip_address)
+            serializer = DeviceDataSerializer(device_data, many=True)
+            return Response(serializer.data)
+
+
+#getting based on day
+class MonthView(viewsets.ModelViewSet):
+    serializer_class = DeviceDataSerializer
+
+    def get_by_month(self, request, *args, **kwargs):
+        # Get DeviceConfigurations by month
+        month = request.query_params.get('month', timezone.now().month)
+        queryset = DeviceData.objects.filter(time__month=month)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)     
+             
+       
+        
+#getting_details_based_on_date
+class DeviceConfigurationByDateView(viewsets.ModelViewSet):
+    serializer_class = DeviceDataSerializer
+
+    def get_by_date(self, request,*args,**kwargs):
+        date=request.query_params.get('date',timezone.now().date)
+        queryset=DeviceData.objects.filter(time=date)
+        serializer=self.get_serializer(queryset,many=True)
+        return Response(serializer.data)
+        """try:
+            # Assuming date is in the format YYYY-MM-DD
+            start_date = datetime.strptime(date, "%Y-%m-%d")
+            end_date = start_date + datetime.timedelta(days=1)
+
+            device_data = DeviceData.objects.filter(time__range=(start_date, end_date))
+            serializer = DeviceDataSerializer(device_data, many=True)
+            return Response(serializer.data)
+        except ValueError:
+            return Response({"error": "Invalid date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)"""
