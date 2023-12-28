@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'users',
+    'channels',
+
 ]
 
 
@@ -80,13 +82,12 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  # Use 'django.db.backends.postgresql' for PostgreSQL, 'django.db.backends.sqlite3' for SQLite, etc.
-        'NAME': 'new',
-        'USER': 'root',
-        'PASSWORD': 'karthi638',
-        'HOST': 'localhost',  # Replace with the actual host for your database server
-        'PORT': '3306',
+        'NAME': 'defaultdb',
+        'USER': 'avnadmin',
+        'PASSWORD': 'AVNS_GF-PYMN20L6xO_Zc8Fy',
+        'HOST': 'mysql-225304af-krishnaswamykarthick-f432.a.aivencloud.com',  # Replace with the actual host for your database server
+        'PORT': '14656',
            # Replace with the actual port for your database server
-        
     }
 }
 
