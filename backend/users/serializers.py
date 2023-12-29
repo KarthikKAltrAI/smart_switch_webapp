@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,House,Room,Device,DeviceConfiguration,MacIpMapping,DeviceData
+from .models import User,House,Room,Device,DeviceConfiguration,MacIpMapping,DeviceData,UserProfile
 
 
 
@@ -67,3 +67,16 @@ class DeviceDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeviceData
         fields ='__all__'
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['id', 'user','image', 'network_ssid', 'network_password']
+
+    def create(self, validated_data):
+        image = validated_data.pop('image', None)
+        user_profile = UserProfile.objects.create(**validated_data)
+        if image:
+            user_profile.image = image
+            user_profile.save()
+        return user_profile

@@ -1,7 +1,8 @@
 from django.urls import path,include
-from .views import DeviceConfigurationByDateView, RegisterView,LoginView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,Ipadd,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP
+from .views import  DeviceConfigurationByDateView, RegisterView,LoginView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,Ipadd,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP,TotalPowerView,PowerConsumptionView,VoltageListView,CurrentListView,PowerListView,PowerMonthlyListView,UserProfileListCreateView,UserProfileDetailView,UserProfileUpdateView,ClearUserProfileFieldsView
 from rest_framework.routers import DefaultRouter
 from .consumers import DeviceDataConsumer
+
 
 
 urlpatterns = [
@@ -71,9 +72,35 @@ urlpatterns = [
     #history of Ip
     path('device-data/<str:ip_address>/', HistoryIP.as_view(), name='device-data-detail'),
 
+    #TOTAL_POWER_OF_PARTICULAR_IP[DEV]
+    path('device-data/total-power/<str:ip_address>/', TotalPowerView.as_view(), name='total-power'),
+
+    #power-consumption
+    path('device-data/<str:ip_address>/<str:period>/', PowerConsumptionView.as_view(), name='power-consumption'),
+
+    #current-list
+    path('device-current-list/<str:ip_address>/', CurrentListView.as_view(), name='device-current-list'),
+
+
+
+
+    #power-list
+    path('device-power-list/<str:ip_address>/', PowerListView.as_view(), name='device-power-list'),
+
 
     
-    
+    path('device-voltage-list/<str:ip_address>/', VoltageListView.as_view(), name='device-voltage-list'),
+
+    path('device-power-monthly-list/<str:ip_address>/<int:year>/<int:month>/', PowerMonthlyListView.as_view(), name='device-power-monthly-list'),
+
+
+    path('profiles/', UserProfileListCreateView.as_view(), name='profile-list-create'),
+    path('profiles/<int:pk>/', UserProfileDetailView.as_view(), name='profile-detail'),
+    path('user-profile/<int:user_id>/', UserProfileUpdateView.as_view(), name='update-user-profile'),
+    path('user-profile/clear-fields/<int:pk>/', ClearUserProfileFieldsView.as_view(), name='clear-user-profile-fields'),
+
+
+
 
 
 

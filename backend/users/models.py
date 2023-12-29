@@ -57,8 +57,6 @@ class DeviceConfiguration(models.Model):
 
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     device_password = models.CharField(max_length=255)
-    network_ssid = models.CharField(max_length=255)
-    network_password = models.CharField(max_length=255)
     
     # Additional fields
     device_name = models.CharField(max_length=255) 
@@ -95,4 +93,18 @@ class DeviceData(models.Model):
 
     def __str__(self):
         return self.ip_address
+    
+
+def upload_to(instance, filename):
+    return 'images/{filename}'.format(filename=filename)
+    
+class UserProfile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,blank=True,null=True)
+
+    image = models.ImageField(upload_to=upload_to, blank=True, null=True)
+    network_ssid = models.CharField(max_length=100, blank=True)
+    network_password = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return self.network_ssid
     
