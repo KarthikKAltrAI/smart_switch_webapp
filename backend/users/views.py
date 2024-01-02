@@ -4,27 +4,22 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from .serializers import UserSerializer,HouseSerializer,DeviceSerializer,RoomSerializer,DeviceConfigurationSerializer,DeviceDataSerializer,UserProfileSerializer
 from .models import User,Room,House,Device,DeviceConfiguration,DeviceData,UserProfile
-from rest_framework import viewsets,permissions
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from django.utils import timezone
-from django.db.models.functions import TruncMonth
 from rest_framework import status
 from libnmap.process import NmapProcess
 from libnmap.parser import NmapParser
 from time import sleep
 import socket
 from rest_framework.decorators import api_view
-from django.http import JsonResponse
-from scapy.all import ARP, Ether, srp
 from django.shortcuts import get_object_or_404
-from datetime import datetime
 from django.db.models import Sum
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
-from rest_framework import permissions,generics
+from rest_framework import generics
 from django.utils.dateparse import parse_datetime
 from django.db.models import Sum
-from rest_framework.generics import RetrieveAPIView
 
 
 
@@ -39,8 +34,6 @@ from rest_framework.generics import RetrieveAPIView
 
 
 
-import jwt
-import datetime
 
 # Register
 class RegisterView(APIView):
@@ -138,11 +131,7 @@ class LogoutView(APIView):
         response.delete_cookie('jwt')
         response.data = {'message': 'success'}
         return response
-    
-class UserFieldMixin:
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
+  
         
 class HouseViewSet(viewsets.ModelViewSet):
     queryset = House.objects.all()
@@ -331,36 +320,6 @@ class RoomDevicesView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
         
-# getting ip
-class Ipadd(APIView):
-    @api_view(['GET'])
-    def get_ip_by_mac(request, mac_address):
-        try:
-            ip = socket.gethostbyname(socket.gethostname())  # local ip
-        except:
-            ip = '127.0.0.1'
-
-        nm = NmapProcess(f'{ip}/24', options="-sP")
-        nm.run_background()
-
-        while nm.is_running():
-            sleep(2)
-
-        nmap_report = NmapParser.parse(nm.stdout)
-        
-        print("Nmap Output:", nm.stdout)  # Debugging statement
-
-        res = next(
-            filter(lambda n: n.mac == mac_address.strip().upper(),
-                   filter(lambda host: host.is_up(), nmap_report.hosts)),
-            None
-        )
-
-        if res is None:
-            return Response({"error": "Host is down or Mac address does not exist"}, status=404)
-        else:
-            return Response({"mac_address": mac_address, "ip_address": res.address})
-
 
 
 #ip

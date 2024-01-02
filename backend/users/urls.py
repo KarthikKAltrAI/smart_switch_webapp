@@ -1,7 +1,5 @@
-from django.urls import path,include
-from .views import  DeviceConfigurationByDateView, RegisterView,LoginView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,Ipadd,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP,TotalPowerView,PowerConsumptionView,VoltageListView,CurrentListView,PowerListView,PowerMonthlyListView,UserProfileListCreateView,UserProfileDetailView,UserProfileUpdateView,ClearUserProfileFieldsView
-from rest_framework.routers import DefaultRouter
-from .consumers import DeviceDataConsumer
+from django.urls import path
+from .views import  DeviceConfigurationByDateView, RegisterView,LoginView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP,TotalPowerView,PowerConsumptionView,VoltageListView,CurrentListView,PowerListView,PowerMonthlyListView,UserProfileListCreateView,UserProfileDetailView,UserProfileUpdateView,ClearUserProfileFieldsView
 
 
 
@@ -44,9 +42,7 @@ urlpatterns = [
      #getting house of particular user
      path('houses/user_houses/<int:id>', HouseViewSet.as_view({'get': 'user_houses'}), name='user-houses'),
 
-    #ipaddress
-    path('get_ip/<str:mac_address>/', Ipadd.get_ip_by_mac, name='get_ip_by_mac'),
-
+    
 
 
     #getting rooms of particular house
