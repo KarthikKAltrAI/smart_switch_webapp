@@ -53,14 +53,14 @@ urlpatterns = [
 
     #posting as list with-ip
     path('device-data/', DeviceDataView.as_view(), name='device-data-list'),
-    
+
     #getting_latest_ip
     path('device-data/ip/latest/<str:ip_address>/', IpviewSet.as_view(), name='device-data-detail'),
 
     #getting details of device of particular user
     path('device-data/<int:user_id>/', UserDeviceDataView.as_view(), name='user-device-data'),
 
-    #getting device name of particular user
+    #getting device name_of_particular_user
     path('users/devices/<int:user_id>', UserDevicesView.as_view(), name='user-devices'),
 
     #GETTING_DEVICEDATA_BY_DATE

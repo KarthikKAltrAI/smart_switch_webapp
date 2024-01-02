@@ -561,6 +561,7 @@ class UserProfileListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save()
+
 class UserProfileDetailView(generics.RetrieveAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
@@ -573,12 +574,11 @@ class UserProfileDetailView(generics.RetrieveAPIView):
         try:
             obj = queryset.get(**filter_kwargs)
         except UserProfile.MultipleObjectsReturned:
-            # Handle multiple objects. For example, return the first one
             obj = queryset.filter(**filter_kwargs).first()
-            # Or return a list of objects (change the view logic accordingly)
 
         self.check_object_permissions(self.request, obj)
         return obj
+    
 class UserProfileUpdateView(generics.UpdateAPIView):
     serializer_class = UserProfileSerializer
     queryset = UserProfile.objects.all()
