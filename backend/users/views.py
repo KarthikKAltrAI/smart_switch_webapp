@@ -385,6 +385,17 @@ class IpviewSet(APIView):
             return Response({ip_address: serializer.data})
         except DeviceData.DoesNotExist:
             return Response({'error': 'Device with given IP not found'}, status=status.HTTP_404_NOT_FOUND)
+    def put(self, request, ip_address):
+        try:
+            device_data = DeviceData.objects.filter(ip_address=ip_address).latest('id')
+        except DeviceData.DoesNotExist:
+            return Response({'error': 'Device with given IP not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = DeviceDataSerializer(device_data, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({ip_address: serializer.data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
 
 class HistoryIP(APIView):
     def get(self, request, ip_address):

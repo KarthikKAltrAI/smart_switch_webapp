@@ -39,8 +39,8 @@ urlpatterns = [
     path('users/user-details/<int:pk>/', UserDetailsViewSet.as_view({'get': 'user_details'}), name='user-details'),
 
 
-     #getting house of particular user
-     path('houses/user_houses/<int:id>', HouseViewSet.as_view({'get': 'user_houses'}), name='user-houses'),
+    #getting house of particular user
+    path('houses/user_houses/<int:id>', HouseViewSet.as_view({'get': 'user_houses'}), name='user-houses'),
 
     
 
@@ -51,9 +51,10 @@ urlpatterns = [
     #getting devices of particular room
     path('rooms/<int:room_id>/devices/', RoomDevicesView.as_view(), name='room-devices'),
 
-
-     #posting as list with-ip
+    #posting as list with-ip
     path('device-data/', DeviceDataView.as_view(), name='device-data-list'),
+    
+    #getting_latest_ip
     path('device-data/ip/latest/<str:ip_address>/', IpviewSet.as_view(), name='device-data-detail'),
 
     #getting details of device of particular user
