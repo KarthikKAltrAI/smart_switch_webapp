@@ -18,7 +18,6 @@ from channels.auth import AuthMiddlewareStack
   # Replace with your app name
 
 from django.urls import path
-from users.consumers import DeviceDataConsumer  # Replace 'your_app_name' with the name of your Django app
 
 
 from django.core.asgi import get_asgi_application
@@ -27,7 +26,6 @@ application = ProtocolTypeRouter({
     "http": get_asgi_application(),  # Handles standard HTTP requests
     "websocket": AuthMiddlewareStack(  # Handles WebSocket connections
         URLRouter([
-            path('ws/device-data/', DeviceDataConsumer.as_asgi()),  # WebSocket URL pattern
         ])
     ),
 })

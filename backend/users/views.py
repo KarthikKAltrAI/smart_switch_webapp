@@ -8,8 +8,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from django.utils import timezone
 from rest_framework import status
-from libnmap.process import NmapProcess
-from libnmap.parser import NmapParser
 from time import sleep
 import socket
 from rest_framework.decorators import api_view
@@ -70,6 +68,7 @@ class RegisterView(APIView):
 
         response.data = {'jwt': token}  # Set the data attribute correctly
         return response"""
+
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
@@ -415,18 +414,7 @@ class DeviceConfigurationByDateView(viewsets.ModelViewSet):
         queryset=DeviceData.objects.filter(time=date)
         serializer=self.get_serializer(queryset,many=True)
         return Response(serializer.data)
-        """try:
-            # Assuming date is in the format YYYY-MM-DD
-            start_date = datetime.strptime(date, "%Y-%m-%d")
-            end_date = start_date + datetime.timedelta(days=1)
-
-            device_data = DeviceData.objects.filter(time__range=(start_date, end_date))
-            serializer = DeviceDataSerializer(device_data, many=True)
-            return Response(serializer.data)
-        except ValueError:
-            return Response({"error": "Invalid date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)"""
         
-
 
 
 #GETTING_TOTAL_POWER_OF_PARTICULAR_IP
@@ -565,14 +553,21 @@ class UserProfileListCreateView(generics.ListCreateAPIView):
 class UserProfileDetailView(generics.RetrieveAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    lookup_field = 'user__id'  
+    lookup_field = 'user__id'
+
     def get_object(self):
         queryset = self.filter_queryset(self.get_queryset())
         filter_kwargs = {self.lookup_field: self.kwargs.get('pk')}
-        obj = get_object_or_404(queryset, **filter_kwargs)
+
+        try:
+            obj = queryset.get(**filter_kwargs)
+        except UserProfile.MultipleObjectsReturned:
+            # Handle multiple objects. For example, return the first one
+            obj = queryset.filter(**filter_kwargs).first()
+            # Or return a list of objects (change the view logic accordingly)
+
         self.check_object_permissions(self.request, obj)
         return obj
-
 class UserProfileUpdateView(generics.UpdateAPIView):
     serializer_class = UserProfileSerializer
     queryset = UserProfile.objects.all()
