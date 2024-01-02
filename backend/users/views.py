@@ -359,7 +359,7 @@ class DeviceDataView(APIView):
     
 
 
-#getting device-congig of user
+#getting device-config of user
 class UserDeviceDataView(APIView):
     def get(self, request, user_id):
         device_data = DeviceData.objects.filter(user=user_id)
