@@ -49,7 +49,7 @@ urlpatterns = [
     path('houses/<int:house_id>/rooms/', HouseRoomsView.as_view(), name='house-rooms'),
 
     #getting devices of particular room
-     path('rooms/<int:room_id>/devices/', RoomDevicesView.as_view(), name='room-devices'),
+    path('rooms/<int:room_id>/devices/', RoomDevicesView.as_view(), name='room-devices'),
 
 
      #posting as list with-ip
