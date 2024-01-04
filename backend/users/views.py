@@ -868,3 +868,25 @@ class UserPowerDataView(APIView):
         }
         return JsonResponse(response_data)
            
+
+
+class PowerTimestampView(APIView):
+    def get(self, request, ip_address,user_id):
+        device_data = DeviceData.objects.filter(ip_address=ip_address,user_id=user_id).values('time', 'power')
+        return Response(device_data)           
+    
+
+class VoltageTimestampView(APIView):
+    def get(self, request, ip_address,user_id):
+        device_data = DeviceData.objects.filter(ip_address=ip_address,user_id=user_id).values('time', 'voltage')
+        return Response(device_data) 
+
+
+
+class CurrentTimestampView(APIView):
+    def get(self, request, ip_address,user_id):
+        device_data = DeviceData.objects.filter(ip_address=ip_address,user_id=user_id).values('time', 'current')
+        return Response(device_data)  
+
+
+                                   

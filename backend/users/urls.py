@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  CreateScheduleView, DeviceConfigurationByDateView, PowerDataView, RegisterView,LoginView, ScheduleDetailView, Scheduleget, UserPowerDataView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP,TotalPowerView,PowerConsumptionView,VoltageListView,CurrentListView,PowerListView,PowerMonthlyListView,UserProfileListCreateView,UserProfileDetailView,UserProfileUpdateView,ClearUserProfileFieldsView
+from .views import  CreateScheduleView, CurrentTimestampView, DeviceConfigurationByDateView, PowerDataView, PowerTimestampView, RegisterView,LoginView, ScheduleDetailView, Scheduleget, UserPowerDataView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP,TotalPowerView,PowerConsumptionView,VoltageListView,CurrentListView,PowerListView,PowerMonthlyListView,UserProfileListCreateView,UserProfileDetailView,UserProfileUpdateView,ClearUserProfileFieldsView, VoltageTimestampView
 
 
 
@@ -100,6 +100,18 @@ urlpatterns = [
     path('schedule/<int:schedule_id>/', ScheduleDetailView.as_view(), name='schedule-detail'),
     path('power_data/<str:time_range>/', PowerDataView.as_view(), name='power_data'),
     path('userpower_data/<str:time_range>/<int:user_id>/<str:ip_address>/', UserPowerDataView.as_view(), name='user_power_data'),
+
+
+
+
+    path('power_timestamp/<str:ip_address>/<int:user_id>', PowerTimestampView.as_view(), name='power_timestamp'),
+
+    path('voltage_timestamp/<str:ip_address>/<int:user_id>', VoltageTimestampView.as_view(), name='power_timestamp'),
+
+    path('current_timestamp/<str:ip_address>/<int:user_id>', CurrentTimestampView.as_view(), name='power_timestamp'),
+
+
+
 
 
 
