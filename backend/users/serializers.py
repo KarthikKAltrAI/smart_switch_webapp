@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,House,Room,Device,DeviceConfiguration,MacIpMapping,DeviceData,UserProfile
+from .models import User,House,Room,Device,DeviceConfiguration,MacIpMapping,DeviceData,UserProfile,Schedule
 
 
 
@@ -80,3 +80,23 @@ class UserProfileSerializer(serializers.ModelSerializer):
             user_profile.image = image
             user_profile.save()
         return user_profile
+    
+
+class ScheduleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Schedule
+        fields = '__all__'
+
+
+
+
+
+
+
+
+
+
+
+
+
+

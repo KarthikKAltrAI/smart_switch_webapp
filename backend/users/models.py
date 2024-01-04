@@ -108,3 +108,12 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.network_ssid
     
+
+class Schedule(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,blank=True,null=True)
+
+    device_ip = models.GenericIPAddressField()
+    scheduled_time = models.DateTimeField()
+    status = models.CharField(max_length=3)
+    processed = models.BooleanField(default=False)    
+    

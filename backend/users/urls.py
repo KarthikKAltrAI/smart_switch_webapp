@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  DeviceConfigurationByDateView, RegisterView,LoginView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP,TotalPowerView,PowerConsumptionView,VoltageListView,CurrentListView,PowerListView,PowerMonthlyListView,UserProfileListCreateView,UserProfileDetailView,UserProfileUpdateView,ClearUserProfileFieldsView
+from .views import  CreateScheduleView, DeviceConfigurationByDateView, PowerDataView, RegisterView,LoginView, ScheduleDetailView, Scheduleget, UserPowerDataView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP,TotalPowerView,PowerConsumptionView,VoltageListView,CurrentListView,PowerListView,PowerMonthlyListView,UserProfileListCreateView,UserProfileDetailView,UserProfileUpdateView,ClearUserProfileFieldsView
 
 
 
@@ -95,6 +95,17 @@ urlpatterns = [
     path('profiles/<int:pk>/', UserProfileDetailView.as_view(), name='profile-detail'),
     path('user-profile/<int:user_id>/', UserProfileUpdateView.as_view(), name='update-user-profile'),
     path('user-profile/clear-fields/<int:pk>/', ClearUserProfileFieldsView.as_view(), name='clear-user-profile-fields'),
+    path('create_schedule/', CreateScheduleView.as_view(), name='create_schedule'),
+    path('getschedule/<int:user_id>',Scheduleget.as_view(),name='schedule-get'),
+    path('schedule/<int:schedule_id>/', ScheduleDetailView.as_view(), name='schedule-detail'),
+    path('power_data/<str:time_range>/', PowerDataView.as_view(), name='power_data'),
+    path('userpower_data/<str:time_range>/<int:user_id>/<str:ip_address>/', UserPowerDataView.as_view(), name='user_power_data'),
+
+
+
+
+
+
 
 
 

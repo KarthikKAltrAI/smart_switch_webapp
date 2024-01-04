@@ -1,15 +1,21 @@
 from http.client import NOT_FOUND
+import threading
+import time
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
-from .serializers import UserSerializer,HouseSerializer,DeviceSerializer,RoomSerializer,DeviceConfigurationSerializer,DeviceDataSerializer,UserProfileSerializer
-from .models import User,Room,House,Device,DeviceConfiguration,DeviceData,UserProfile
+from .serializers import ScheduleSerializer, UserSerializer,HouseSerializer,DeviceSerializer,RoomSerializer,DeviceConfigurationSerializer,DeviceDataSerializer,UserProfileSerializer
+from .models import Schedule, User,Room,House,Device,DeviceConfiguration,DeviceData,UserProfile
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from django.utils import timezone
 from rest_framework import status
 from time import sleep
 import socket
+from django.db.models.functions import ExtractWeekDay, ExtractHour, ExtractMonth
+
+from django.db.models.functions import ExtractWeekDay
+
 from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
@@ -18,6 +24,48 @@ from django.contrib.auth import get_user_model
 from rest_framework import generics
 from django.utils.dateparse import parse_datetime
 from django.db.models import Sum
+from datetime import timedelta, datetime
+from rest_framework.decorators import api_view
+from django.db.models import Func, FloatField, Sum, F
+from django.db.models.functions import Cast
+from django.http import JsonResponse
+from django.utils import timezone
+from rest_framework.views import APIView
+from datetime import timedelta, datetime
+
+from django.db import models
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -608,4 +656,215 @@ class ClearUserProfileFieldsView(generics.UpdateAPIView):
         user_profile.network_password = ""
         user_profile.save()
 
-        return Response(status=status.HTTP_204_NO_CONTENT)           
+        return Response(status=status.HTTP_204_NO_CONTENT)         
+
+
+
+
+class CreateScheduleView(APIView):
+   
+    def post(self, request, *args, **kwargs):
+        serializer = ScheduleSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+def process_schedules():
+    while True:
+        current_time = timezone.now()
+        schedules_to_process = Schedule.objects.filter(
+            scheduled_time__lte = current_time,
+            processed = False
+        )
+        for schedule_obj in schedules_to_process:
+            DeviceData.objects.create(
+                ip_address=schedule_obj.device_ip,
+                time=schedule_obj.scheduled_time,
+                status=schedule_obj.status,
+                current=0,
+                power="",
+                voltage=0
+            )
+            schedule_obj.processed = True
+            schedule_obj.save()
+        time.sleep(50)
+# Start the processing in a separate thread
+processing_thread = threading.Thread(target=process_schedules)
+processing_thread.start()      
+    
+
+
+
+
+class Scheduleget(APIView):
+     def get(self,request,user_id):
+        schedules=Schedule.objects.filter(user_id=user_id)
+        serializer=ScheduleSerializer(schedules,many=True)
+        return Response(serializer.data)   
+     
+
+
+class ScheduleDetailView(APIView):
+    def get_object(self, schedule_id):
+        return get_object_or_404(Schedule, id=schedule_id)
+
+    def put(self, request, schedule_id):
+        schedule = self.get_object(schedule_id)
+        serializer = ScheduleSerializer(schedule, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, schedule_id):
+        schedule = self.get_object(schedule_id)
+        schedule.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)     
+    
+
+
+class DayOfWeek(Func):
+    function = 'EXTRACT'
+    template = '%(function)s(DOW FROM %(expressions)s)'
+    output_field = models.IntegerField()
+class HourOfDay(Func):
+    function = 'EXTRACT'
+    template = '%(function)s(HOUR FROM %(expressions)s)'
+    output_field = models.IntegerField()
+class MonthOfYear(Func):
+    function = 'EXTRACT'
+    template = '%(function)s(MONTH FROM %(expressions)s)'
+    output_field = models.IntegerField()
+
+class PowerDataView(APIView):
+    def get(self, request, time_range):
+        
+        # Calculate the start and end dates based on the selected time range
+        end_date = datetime.now()
+        if time_range == 'week':
+            start_date = end_date - timedelta(days=7)
+        elif time_range == 'day':
+            start_date = end_date - timedelta(days=1)
+        elif time_range == 'month':
+            start_date = end_date - timedelta(days=30)
+        else:
+            start_date = end_date - timedelta(days=30)
+        # start_date = (
+        #     end_date - timedelta(days=7) if time_range == 'week' else
+        #     end_date - timedelta(days=30) if time_range == 'month' else
+        #     end_date - timedelta(days=1)
+        # )
+        # Query the DeviceData model to get data within the specified date range
+        data = DeviceData.objects.filter(time__gte=start_date, time__lte=end_date)
+        # Group the data by day of the week and calculate the total power for each day
+        if time_range == 'week':
+            grouped_data = (
+                data.annotate(day_of_week=ExtractWeekDay('time'))
+                    .annotate(power_as_float=Cast('power', FloatField()))
+                    .values('day_of_week')
+                    .annotate(total_power=Sum('power_as_float'))
+                    .order_by('day_of_week')
+            )
+            # Map the day of the week to corresponding labels
+            labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            labels = [labels[entry['day_of_week'] - 1] for entry in grouped_data]
+        elif time_range == 'day':
+            grouped_data = (
+                data.annotate(hour_of_day=ExtractHour('time'))
+                    .annotate(power_as_float=Cast('power', FloatField()))
+                    .values('hour_of_day')
+                    .annotate(total_power=Sum('power_as_float'))
+                    .order_by('hour_of_day')
+            )
+            # Map the hours of the day to corresponding labels
+            labels = [str(entry['hour_of_day']) for entry in grouped_data]
+        elif time_range == 'month':
+            grouped_data = (
+                data.annotate(month=MonthOfYear('time'))
+                    .annotate(power_as_float=Cast('power', FloatField()))
+                    .values('month')
+                    .annotate(total_power=Sum('power_as_float'))
+                    .order_by('month')
+            )
+            # Map the month to corresponding labels
+            labels = [
+                'January', 'February', 'March', 'April', 'May', 'June', 'July',
+                'August', 'September', 'October', 'November', 'December'
+            ]
+            labels = [labels[entry['month'] - 1] for entry in grouped_data]
+        values = [entry['total_power'] for entry in grouped_data]
+        # Prepare the response data in JSON format
+        response_data = {
+            'labels': labels,
+            'values': values,
+        }
+        return JsonResponse(response_data)    
+
+
+
+
+
+#getting power-sum based on userid and ip
+class UserPowerDataView(APIView):
+    def get(self, request, time_range, user_id, ip_address):
+        # Validate or process user_id and ip_address as needed
+
+        end_date = datetime.now()
+        if time_range == 'week':
+            start_date = end_date - timedelta(days=7)
+        elif time_range == 'day':
+            start_date = end_date - timedelta(days=1)
+        elif time_range == 'month':
+            start_date = end_date - timedelta(days=30)
+        else:
+            start_date = end_date - timedelta(days=30)
+
+        # Filter by user_id and ip_address in addition to the date range
+        data = DeviceData.objects.filter(
+            user_id=user_id,
+            ip_address=ip_address,
+            time__gte=start_date,
+            time__lte=end_date
+        )
+
+        # Grouping and aggregation logic remains similar to the PowerDataView
+        if time_range == 'week':
+            grouped_data = (
+                data.annotate(day_of_week=ExtractWeekDay('time'))
+                    .annotate(power_as_float=Cast('power', FloatField()))
+                    .values('day_of_week')
+                    .annotate(total_power=Sum('power_as_float'))
+                    .order_by('day_of_week')
+            )
+            labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            labels = [labels[entry['day_of_week'] - 1] for entry in grouped_data]
+        elif time_range == 'day':
+            grouped_data = (
+                data.annotate(hour_of_day=HourOfDay('time'))
+                    .annotate(power_as_float=Cast('power', FloatField()))
+                    .values('hour_of_day')
+                    .annotate(total_power=Sum('power_as_float'))
+                    .order_by('hour_of_day')
+            )
+            labels = [str(entry['hour_of_day']) for entry in grouped_data]
+        elif time_range == 'month':
+            grouped_data = (
+                data.annotate(month=MonthOfYear('time'))
+                    .annotate(power_as_float=Cast('power', FloatField()))
+                    .values('month')
+                    .annotate(total_power=Sum('power_as_float'))
+                    .order_by('month')
+            )
+            labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+            labels = [labels[entry['month'] - 1] for entry in grouped_data]
+
+        values = [entry['total_power'] for entry in grouped_data]
+
+        response_data = {
+            'labels': labels,
+            'values': values,
+        }
+        return JsonResponse(response_data)
+           
