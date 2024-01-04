@@ -55,7 +55,7 @@ urlpatterns = [
     path('device-data/', DeviceDataView.as_view(), name='device-data-list'),
 
     #getting_latest_ip
-    path('device-data/ip/latest/<str:ip_address>/', IpviewSet.as_view(), name='device-data-detail'),
+    path('device-data/ip/latest/<str:ip_address>/<int:user_id>/', IpviewSet.as_view(), name='device-data-detail'),
 
     #getting details of device of particular user
     path('device-data/<int:user_id>/', UserDeviceDataView.as_view(), name='user-device-data'),
@@ -67,10 +67,10 @@ urlpatterns = [
     path('device-data/date/', DeviceConfigurationByDateView.as_view({'get': 'get_by_date'}), name='device-configurations-by-date'),
 
     #history of Ip
-    path('device-data/<str:ip_address>/', HistoryIP.as_view(), name='device-data-detail'),
+    path('device-data/<int:user_id>/<str:ip_address>/', HistoryIP.as_view(), name='device-data-detail'),
 
     #TOTAL_POWER_OF_PARTICULAR_IP[DEV]
-    path('device-data/total-power/<str:ip_address>/', TotalPowerView.as_view(), name='total-power'),
+    path('device-data/total-power/<str:ip_address>/<int:user_id>/', TotalPowerView.as_view(), name='total-power'),
 
     #power-consumption
     path('device-data/<str:ip_address>/<str:period>/', PowerConsumptionView.as_view(), name='power-consumption'),

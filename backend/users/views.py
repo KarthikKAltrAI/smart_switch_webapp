@@ -426,9 +426,9 @@ class UserDevicesView(APIView):
 
 #getting based on latest ip
 class IpviewSet(APIView):
-    def get(self, request, ip_address):
+    def get(self, request, ip_address,user_id):
         try:
-            device_data = DeviceData.objects.filter(ip_address=ip_address).latest('id')
+            device_data = DeviceData.objects.filter(ip_address=ip_address,user_id=user_id).latest('id')
             serializer = DeviceDataSerializer(device_data)
             return Response({ip_address: serializer.data})
         except DeviceData.DoesNotExist:
@@ -446,8 +446,8 @@ class IpviewSet(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
 
 class HistoryIP(APIView):
-    def get(self, request, ip_address):
-            device_data = DeviceData.objects.filter(ip_address=ip_address)
+    def get(self, request,user_id, ip_address):
+            device_data = DeviceData.objects.filter(user_id=user_id,ip_address=ip_address)
             serializer = DeviceDataSerializer(device_data, many=True)
             return Response(serializer.data)
 
@@ -478,8 +478,8 @@ class DeviceConfigurationByDateView(viewsets.ModelViewSet):
 
 #GETTING_TOTAL_POWER_OF_PARTICULAR_IP
 class TotalPowerView(APIView):
-    def get(self, request, ip_address):
-        total_power = DeviceData.objects.filter(ip_address=ip_address).aggregate(Sum('power'))
+    def get(self, request, ip_address,user_id):
+        total_power = DeviceData.objects.filter(ip_address=ip_address,user_id=user_id).aggregate(Sum('power'))
         if total_power['power__sum'] is not None:
             return Response({'ip_address': ip_address, 'total_power': total_power['power__sum']})
         else:
