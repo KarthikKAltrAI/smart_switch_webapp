@@ -111,7 +111,6 @@ class UserProfile(models.Model):
 
 class Schedule(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,blank=True,null=True)
-
     device_ip = models.GenericIPAddressField()
     scheduled_time = models.DateTimeField()
     status = models.CharField(max_length=3)

@@ -101,12 +101,12 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',  # Use 'django.db.backends.postgresql' for PostgreSQL, 'django.db.backends.sqlite3' for SQLite, etc.
-        'NAME': 'defaultdb',
-        'USER': 'avnadmin',
-        'PASSWORD': 'AVNS_GF-PYMN20L6xO_Zc8Fy',
-        'HOST': 'mysql-225304af-krishnaswamykarthick-f432.a.aivencloud.com',  # Replace with the actual host for your database server
-        'PORT': '14656',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',  # Use 'django.db.backends.postgresql' for PostgreSQL, 'django.db.backends.sqlite3' for SQLite, etc.
+        'NAME': 'sample',
+        'USER': 'postgres',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',  # Replace with the actual host for your database server
+        'PORT': '5432',
            # Replace with the actual port for your database server
     }
 }
