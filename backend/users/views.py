@@ -4,17 +4,26 @@ import time
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
-from .serializers import ScheduleSerializer, UserSerializer,HouseSerializer,DeviceSerializer,RoomSerializer,DeviceConfigurationSerializer,DeviceDataSerializer,UserProfileSerializer
+from .serializers import ScheduleSerializer, UserSerializer,HouseSerializer,DeviceSerializer,InstallerLoginSerializer,InstallerRegistrationSerializer,RoomSerializer,DeviceConfigurationSerializer,DeviceDataSerializer,UserProfileSerializer
 from .models import Schedule, User,Room,House,Device,DeviceConfiguration,DeviceData,UserProfile
 from rest_framework import viewsets
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from rest_framework.decorators import action
 from django.utils import timezone
 from rest_framework import status
 from time import sleep
+from django.contrib.auth.hashers import make_password, check_password
+
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate, login
 import socket
 from django.db.models.functions import ExtractWeekDay, ExtractHour, ExtractMonth
 
 from django.db.models.functions import ExtractWeekDay
+from .models import Installer
 
 from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
@@ -671,7 +680,7 @@ class CreateScheduleView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-def process_schedules():
+"""def process_schedules():
     while True:
         current_time = timezone.now()
         schedules_to_process = Schedule.objects.filter(
@@ -692,7 +701,7 @@ def process_schedules():
         time.sleep(50)
 # Start the processing in a separate thread
 processing_thread = threading.Thread(target=process_schedules)
-processing_thread.start()      
+processing_thread.start()   """   
     
 
 
@@ -887,6 +896,46 @@ class CurrentTimestampView(APIView):
     def get(self, request, ip_address,user_id):
         device_data = DeviceData.objects.filter(ip_address=ip_address,user_id=user_id).values('time', 'current')
         return Response(device_data)  
+    
 
 
-                                   
+
+#installer
+class InstallerRegistrationView(generics.CreateAPIView):
+    queryset = Installer.objects.all()
+    serializer_class = InstallerRegistrationSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def perform_create(self, serializer):
+        serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
+        user = serializer.save()
+        response_data = {
+            'id': user.id,
+            'name': user.name,
+            'devices': user.devices,
+        }
+        return Response(response_data, status=201)  # 201 Created status
+
+class InstallerLoginView(generics.CreateAPIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        try:
+            user = Installer.objects.get(email=email)
+        except Installer.DoesNotExist:
+            return Response({'error': 'User not found'}, status=400)
+
+        if check_password(password, user.password):
+            refresh = RefreshToken.for_user(user)
+            response_data = {
+                'id': user.id,
+                'name': user.name,
+                'devices': user.devices,
+                'access_token': str(refresh.access_token),
+            }
+            return Response(response_data, status=200)
+
+        return Response({'error': 'Invalid credentials'}, status=400)

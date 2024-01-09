@@ -116,3 +116,21 @@ class Schedule(models.Model):
     status = models.CharField(max_length=3)
     processed = models.BooleanField(default=False)    
     
+
+
+class Installer(models.Model):
+    name=models.CharField(max_length=255)
+    email=models.CharField(max_length=255,unique=True)
+    password=models.CharField(max_length=255)
+    devices=models.IntegerField(null=True)
+    join_date=models.DateField(default=timezone.now)
+    join_time=models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return self.name
+    
+
+
+    
+
+

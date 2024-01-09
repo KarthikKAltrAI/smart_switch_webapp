@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,House,Room,Device,DeviceConfiguration,MacIpMapping,DeviceData,UserProfile,Schedule
+from .models import User,House,Room,Device,DeviceConfiguration,MacIpMapping,DeviceData,UserProfile,Schedule,Installer
 
 
 
@@ -86,6 +86,18 @@ class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
         fields = '__all__'
+
+
+class InstallerRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Installer
+        fields = ['name', 'email', 'password','devices']
+
+
+class InstallerLoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Installer
+        fields = ['email', 'password']        
 
 
 

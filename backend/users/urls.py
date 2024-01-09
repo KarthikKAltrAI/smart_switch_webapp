@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  CreateScheduleView, CurrentTimestampView, DeviceConfigurationByDateView, PowerDataView, PowerTimestampView, RegisterView,LoginView, ScheduleDetailView, Scheduleget, UserPowerDataView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP,TotalPowerView,PowerConsumptionView,VoltageListView,CurrentListView,PowerListView,PowerMonthlyListView,UserProfileListCreateView,UserProfileDetailView,UserProfileUpdateView,ClearUserProfileFieldsView, VoltageTimestampView
+from .views import  CreateScheduleView, CurrentTimestampView, DeviceConfigurationByDateView, InstallerLoginView, InstallerRegistrationView, PowerDataView, PowerTimestampView, RegisterView,LoginView, ScheduleDetailView, Scheduleget, UserPowerDataView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP,TotalPowerView,PowerConsumptionView,VoltageListView,CurrentListView,PowerListView,PowerMonthlyListView,UserProfileListCreateView,UserProfileDetailView,UserProfileUpdateView,ClearUserProfileFieldsView, VoltageTimestampView
 
 
 
@@ -109,6 +109,9 @@ urlpatterns = [
     path('voltage_timestamp/<str:ip_address>/<int:user_id>', VoltageTimestampView.as_view(), name='power_timestamp'),
 
     path('current_timestamp/<str:ip_address>/<int:user_id>', CurrentTimestampView.as_view(), name='power_timestamp'),
+    #installer
+    path('installer/register/', InstallerRegistrationView.as_view(), name='installer-register'),
+    path('installer/login/', InstallerLoginView.as_view(), name='installer-login'),
 
 
 
