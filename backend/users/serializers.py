@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,House,Room,Device,DeviceConfiguration,MacIpMapping,DeviceData,UserProfile,Schedule,Installer
+from .models import User,House,Room,Device,DeviceConfiguration,MacIpMapping,DeviceData,UserProfile,Schedule,Installer,SuperAdmin,Admin
 
 
 
@@ -22,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=User
-        fields = ['id', 'name', 'email','password', 'role', 'join_date', 'join_time']
+        fields = ['id', 'name', 'email','password', 'role','installer', 'join_date', 'join_time']
         extra_kwargs={
             'password':{'write_only':True}
         }
@@ -88,18 +88,27 @@ class ScheduleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class InstallerRegistrationSerializer(serializers.ModelSerializer):
+        
+
+
+class SuperAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SuperAdmin
+        fields = ['id', 'name', 'email','password','role']
+
+
+
+class AdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Admin
+        fields='__all__'
+
+
+
+class InstallerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Installer
-        fields = ['name', 'email', 'password','devices']
-
-
-class InstallerLoginSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Installer
-        fields = ['email', 'password']        
-
-
+        fields = '__all__'
 
 
 

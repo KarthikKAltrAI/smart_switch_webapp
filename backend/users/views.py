@@ -4,8 +4,8 @@ import time
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
-from .serializers import ScheduleSerializer, UserSerializer,HouseSerializer,DeviceSerializer,InstallerLoginSerializer,InstallerRegistrationSerializer,RoomSerializer,DeviceConfigurationSerializer,DeviceDataSerializer,UserProfileSerializer
-from .models import Schedule, User,Room,House,Device,DeviceConfiguration,DeviceData,UserProfile
+from .serializers import ScheduleSerializer, UserSerializer,HouseSerializer,DeviceSerializer,SuperAdminSerializer,AdminSerializer,InstallerSerializer,RoomSerializer,DeviceConfigurationSerializer,DeviceDataSerializer,UserProfileSerializer
+from .models import Schedule, User,Room,House,Device,DeviceConfiguration,DeviceData,UserProfile,SuperAdmin,Admin
 from rest_framework import viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -901,22 +901,91 @@ class CurrentTimestampView(APIView):
 
 
 #installer
-class InstallerRegistrationView(generics.CreateAPIView):
-    queryset = Installer.objects.all()
-    serializer_class = InstallerRegistrationSerializer
+
+    
+
+
+#super_admin
+
+class SuperAdminRegistrationView(generics.CreateAPIView):
+    queryset = SuperAdmin.objects.all()
+    serializer_class = SuperAdminSerializer  # Add this line
     permission_classes = [permissions.AllowAny]
 
     def perform_create(self, serializer):
         serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
-        user = serializer.save()
-        response_data = {
-            'id': user.id,
-            'name': user.name,
-            'devices': user.devices,
-        }
-        return Response(response_data, status=201)  # 201 Created status
+        serializer.save()
 
-class InstallerLoginView(generics.CreateAPIView):
+
+class SuperAdminLoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        try:
+            user = SuperAdmin.objects.get(email=email)
+        except SuperAdmin.DoesNotExist:
+            return Response({'error': 'User not found'}, status=400)
+
+        if check_password(password, user.password):
+            refresh = RefreshToken.for_user(user)
+            response_data = {
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'access_token': str(refresh.access_token),
+            }
+            return Response(response_data, status=200)
+
+        return Response({'error': 'Invalid credentials'}, status=400)
+
+class AdminRegistrationView(generics.CreateAPIView):
+    queryset = Admin.objects.all()
+    serializer_class = AdminSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def perform_create(self, serializer):
+        serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
+        serializer.save()
+
+class AdminLoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        try:
+            user = Admin.objects.get(email=email)
+        except Admin.DoesNotExist:
+            return Response({'error': 'User not found'}, status=400)
+
+        if check_password(password, user.password):
+            refresh = RefreshToken.for_user(user)
+            response_data = {
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'access_token': str(refresh.access_token),
+            }
+            return Response(response_data, status=200)
+
+        return Response({'error': 'Invalid credentials'}, status=400)
+        
+
+
+class InstallerRegistrationView(generics.CreateAPIView):
+    queryset = Installer.objects.all()
+    serializer_class = InstallerSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def perform_create(self, serializer):
+        serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
+        serializer.save()
+
+class InstallerLoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
@@ -933,9 +1002,24 @@ class InstallerLoginView(generics.CreateAPIView):
             response_data = {
                 'id': user.id,
                 'name': user.name,
-                'devices': user.devices,
+                'email': user.email,
+                'users': user.users,
                 'access_token': str(refresh.access_token),
             }
             return Response(response_data, status=200)
 
-        return Response({'error': 'Invalid credentials'}, status=400)
+        return Response({'error': 'Invalid credentials'}, status=400)        
+
+
+
+
+#getting_userslimit_for_particular_installer
+class InstallerDetailView(generics.RetrieveAPIView):
+    queryset = Installer.objects.all()
+    serializer_class = InstallerSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)            

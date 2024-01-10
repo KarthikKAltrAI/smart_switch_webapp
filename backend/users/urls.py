@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  CreateScheduleView, CurrentTimestampView, DeviceConfigurationByDateView, InstallerLoginView, InstallerRegistrationView, PowerDataView, PowerTimestampView, RegisterView,LoginView, ScheduleDetailView, Scheduleget, UserPowerDataView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP,TotalPowerView,PowerConsumptionView,VoltageListView,CurrentListView,PowerListView,PowerMonthlyListView,UserProfileListCreateView,UserProfileDetailView,UserProfileUpdateView,ClearUserProfileFieldsView, VoltageTimestampView
+from .views import  AdminLoginView, AdminRegistrationView, CreateScheduleView, CurrentTimestampView, DeviceConfigurationByDateView, InstallerDetailView, InstallerLoginView, InstallerRegistrationView, PowerDataView, PowerTimestampView, RegisterView,LoginView, ScheduleDetailView, Scheduleget, SuperAdminLoginView, SuperAdminRegistrationView, UserPowerDataView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP,TotalPowerView,PowerConsumptionView,VoltageListView,CurrentListView,PowerListView,PowerMonthlyListView,UserProfileListCreateView,UserProfileDetailView,UserProfileUpdateView,ClearUserProfileFieldsView, VoltageTimestampView
 
 
 
@@ -110,8 +110,24 @@ urlpatterns = [
 
     path('current_timestamp/<str:ip_address>/<int:user_id>', CurrentTimestampView.as_view(), name='power_timestamp'),
     #installer
+    
+
+    #super_admin
+    path('superadmin/register/', SuperAdminRegistrationView.as_view(), name='superadmin-register'),
+    path('superadmin/login/', SuperAdminLoginView.as_view(), name='superadmin-login'),
+
+    path('admin/register/', AdminRegistrationView.as_view(), name='admin-register'),
+    path('admin/login/', AdminLoginView.as_view(), name='admin-login'),
+
     path('installer/register/', InstallerRegistrationView.as_view(), name='installer-register'),
     path('installer/login/', InstallerLoginView.as_view(), name='installer-login'),
+
+    path('installer/<int:pk>/', InstallerDetailView.as_view(), name='installer-detail'),
+
+
+
+
+
 
 
 
