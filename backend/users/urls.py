@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  AdminLoginView, AdminRegistrationView, CreateScheduleView, CurrentTimestampView, DeviceConfigurationByDateView, InstallerDetailView, InstallerLoginView, InstallerRegistrationView, PowerDataView, PowerTimestampView, RegisterView,LoginView, ScheduleDetailView, Scheduleget, SuperAdminLoginView, SuperAdminRegistrationView, UserPowerDataView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP,TotalPowerView,PowerConsumptionView,VoltageListView,CurrentListView,PowerListView,PowerMonthlyListView,UserProfileListCreateView,UserProfileDetailView,UserProfileUpdateView,ClearUserProfileFieldsView, VoltageTimestampView
+from .views import  AdminLoginView, AdminRegistrationView, CreateScheduleView, CurrentTimestampView, DeviceConfigurationByDateView, InstallerDetailView, InstallerLoginView, InstallerRegistrationView, InstallerUpdateView, PowerDataView, PowerTimestampView, RegisterView,LoginView, ScheduleDetailView, Scheduleget, SuperAdminLoginView, SuperAdminRegistrationView, UserPowerDataView, UserUpdateView,UserView,LogoutView,HouseViewSet,RoomViewSet,DeviceViewSet,DeviceConfigurationViewSet,UserViewSet,UserDetailsViewSet,HouseRoomsView,RoomDevicesView,DeviceDataView,UserDeviceDataView,UserDevicesView,IpviewSet,MonthView,HistoryIP,TotalPowerView,PowerConsumptionView,VoltageListView,CurrentListView,PowerListView,PowerMonthlyListView,UserProfileListCreateView,UserProfileDetailView,UserProfileUpdateView,ClearUserProfileFieldsView, VoltageTimestampView
 
 
 
@@ -123,6 +123,14 @@ urlpatterns = [
     path('installer/login/', InstallerLoginView.as_view(), name='installer-login'),
 
     path('installer/<int:pk>/', InstallerDetailView.as_view(), name='installer-detail'),
+
+    #update_installer
+    path('installer/<int:pk>/update/', InstallerUpdateView.as_view(), name='installer-update'),
+
+
+    #update_user
+    path('user/<int:pk>/update/', UserUpdateView.as_view(), name='user-update'),
+
 
 
 

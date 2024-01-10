@@ -1023,3 +1023,44 @@ class InstallerDetailView(generics.RetrieveAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)            
+    
+
+#update-installer
+class InstallerUpdateView(generics.UpdateAPIView):
+    queryset = Installer.objects.all()
+    serializer_class = InstallerSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        
+        # If you want to perform additional checks before updating, you can do it here
+        
+        self.perform_update(serializer)
+
+        return Response(serializer.data)      
+
+
+#update-user
+class UserUpdateView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        # If you want to perform additional checks before updating, you can do it here
+
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
+
+    
+              
